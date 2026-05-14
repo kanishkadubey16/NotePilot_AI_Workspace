@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useRef } from 'react';
+import { createContext, useState, useEffect, useRef, useMemo } from 'react';
 import noteService from '../services/noteService';
 import { toast } from 'react-toastify';
 
@@ -8,9 +8,13 @@ export const NoteProvider = ({ children }) => {
   const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [saveStatus, setSaveStatus] = useState('saved'); 
+  const [saveStatus, setSaveStatus] = useState('saved');
+  
+  // Filtering and Searching State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [view, setView] = useState('all'); // 'all', 'archived'
 
-  // Ref for handling setTimeout cleanup (Phase 5 requirement)
   const saveTimeoutRef = useRef(null);
 
   const fetchNotes = async () => {
@@ -27,7 +31,21 @@ export const NoteProvider = ({ children }) => {
     }
   };
 
-  // Create Note with Optimistic UI Update (Phase 6 requirement)
+  // Filtered Notes Logic
+  const filteredNotes = useMemo(() => {
+    return notes.filter(note => {
+      const matchesSearch = 
+        note.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        note.content?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesCategory = activeCategory === 'All' || note.category === activeCategory;
+      
+      const matchesView = view === 'archived' ? note.isArchived : !note.isArchived;
+
+      return matchesSearch && matchesCategory && matchesView;
+    });
+  }, [notes, searchQuery, activeCategory, view]);
+
   const createNote = async () => {
     const tempId = Date.now().toString();
     const tempNote = {
@@ -35,76 +53,79 @@ export const NoteProvider = ({ children }) => {
       title: '',
       content: '',
       tags: [],
+      category: '',
+      isArchived: false,
       updatedAt: new Date().toISOString(),
-      isTemp: true // Flag for optimistic state
+      isTemp: true
     };
 
-    // Optimistic Update: add to UI immediately
     setNotes([tempNote, ...notes]);
     setSelectedNote(tempNote);
+    setView('all'); // Switch to 'all' view when creating
 
     try {
       const data = await noteService.createNote({ title: '', content: '' });
       if (data.success) {
-        // Replace temp note with real note from server
         setNotes(prev => prev.map(n => n._id === tempId ? data.note : n));
         setSelectedNote(data.note);
       }
     } catch (error) {
-      // Rollback on failure
       setNotes(prev => prev.filter(n => n._id !== tempId));
       setSelectedNote(null);
       toast.error('Failed to create note');
     }
   };
 
-  const selectNote = (note) => {
-    setSelectedNote(note);
-  };
-
-  // Manual trigger for save (used for immediate actions if needed)
-  const performSave = async (id, data) => {
-    setSaveStatus('saving');
-    try {
-      const response = await noteService.updateNote(id, data);
-      if (response.success) {
-        setSaveStatus('saved');
-        setNotes(prev => prev.map(n => n._id === id ? response.note : n));
-      }
-    } catch (error) {
-      setSaveStatus('error');
-    }
-  };
-
-  // Auto-save logic with setTimeout and cleanup (Phase 5 requirement)
   const updateSelectedNote = (updates) => {
     if (!selectedNote || selectedNote.isTemp) return;
     
-    // 1. Update local state for immediate feedback
     const updatedNote = { ...selectedNote, ...updates };
     setSelectedNote(updatedNote);
     setNotes(prev => prev.map(n => n._id === selectedNote._id ? updatedNote : n));
     
-    // 2. Set status to saving
     setSaveStatus('saving');
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
-    // 3. Cleanup previous timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    // 4. Set new timeout for debouncing
-    saveTimeoutRef.current = setTimeout(() => {
-      performSave(selectedNote._id, updates);
-    }, 1500); // 1.5s delay after typing stops
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await noteService.updateNote(selectedNote._id, updates);
+        if (response.success) {
+          setSaveStatus('saved');
+          setNotes(prev => prev.map(n => n._id === selectedNote._id ? response.note : n));
+        }
+      } catch (error) {
+        setSaveStatus('error');
+      }
+    }, 1000);
   };
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    };
-  }, []);
+  const deleteNote = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently delete this note?')) return;
+    
+    try {
+      const data = await noteService.deleteNote(id);
+      if (data.success) {
+        setNotes(prev => prev.filter(n => n._id !== id));
+        if (selectedNote?._id === id) setSelectedNote(null);
+        toast.success('Note deleted');
+      }
+    } catch (error) {
+      toast.error('Failed to delete note');
+    }
+  };
+
+  const toggleArchive = async (id) => {
+    try {
+      const data = await noteService.archiveNote(id);
+      if (data.success) {
+        setNotes(prev => prev.map(n => n._id === id ? data.note : n));
+        if (selectedNote?._id === id) setSelectedNote(data.note);
+        toast.success(data.note.isArchived ? 'Note archived' : 'Note unarchived');
+      }
+    } catch (error) {
+      toast.error('Failed to update archive status');
+    }
+  };
 
   useEffect(() => {
     fetchNotes();
@@ -112,26 +133,22 @@ export const NoteProvider = ({ children }) => {
 
   return (
     <NoteContext.Provider value={{
-      notes,
+      notes: filteredNotes,
+      allNotes: notes, // For tag/category extraction
       selectedNote,
       loading,
       saveStatus,
-      fetchNotes,
+      searchQuery,
+      setSearchQuery,
+      activeCategory,
+      setActiveCategory,
+      view,
+      setView,
       createNote,
-      selectNote,
+      selectNote: setSelectedNote,
       updateSelectedNote,
-      deleteNote: async (id) => {
-        try {
-          const data = await noteService.deleteNote(id);
-          if (data.success) {
-            setNotes(prev => prev.filter(n => n._id !== id));
-            if (selectedNote?._id === id) setSelectedNote(null);
-            toast.success('Note deleted');
-          }
-        } catch (error) {
-          toast.error('Failed to delete note');
-        }
-      }
+      deleteNote,
+      toggleArchive
     }}>
       {children}
     </NoteContext.Provider>
