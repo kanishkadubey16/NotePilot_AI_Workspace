@@ -4,6 +4,42 @@ NotePilot AI is a professional, production-ready AI-powered productivity workspa
 
 ---
 
+## 📸 Sample Outputs & Product Showcases
+
+Explore NotePilot AI in action through these clean product interfaces and real-time AI results:
+
+### 🏠 Landing Page & Features Showcase
+| Product Landing Page | Interactive Features Grid |
+| :---: | :---: |
+| ![Landing Page](./assets/main-page.jpg) | ![Features Grid](./assets/features.jpg) |
+| *Modern SaaS landing page built with custom gradients and typography.* | *AI capabilities grid demonstrating summaries, to-dos, and sharing.* |
+
+### 🔑 Secure Authentication Flows
+| Sign In Interface | Sign Up Interface |
+| :---: | :---: |
+| ![Login Page](./assets/login.jpg) | ![Signup Page](./assets/signin.jpg) |
+| *Secure Login with automatic browser-autofill override controls.* | *Secure Signup with real-time field validation.* |
+
+### 📝 Dynamic Workspace & Real-time Editor
+| Three-Column Note Workspace | Real-time AI Note Summary |
+| :---: | :---: |
+| ![Workspace Layout](./assets/workspace.jpg) | ![AI Summary Output](./assets/Ai-summary.jpg) |
+| *Sidebar navigators, full searchable notes list, and spacious canvas.* | *Interactive bottom AI bar producing real-time Summaries.* |
+
+### ✍️ AI-Engine Writing Improvements & Settings
+| AI Writing Improvement Output | Dark-Mode Settings Panel |
+| :---: | :---: |
+| ![AI Improve Writing](./assets/improved_writting.jpg) | ![Settings Panel](./assets/settings.jpg) |
+| *Groq Llama-3.3-70B grammar, tone, and prose polisher.* | *Dark Mode toggle switches, profile updates, and account deletion.* |
+
+### 📊 Advanced Productivity Dashboard
+| Analytics Control Room |
+| :---: |
+| ![Productivity Dashboard](./assets/Dashboard.jpg) |
+| *Metrics breakdown showing writing cadence, active shared notes, and AI request counter donut chart.* |
+
+---
+
 ## 🏗️ Architecture Explanation & System Data Flow
 
 NotePilot AI utilizes a decoupled **Client-Server Architecture** incorporating a clean MVC (Model-View-Controller) structure on the backend and a centralized context-based state management structure on the frontend. 
