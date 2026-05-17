@@ -195,3 +195,38 @@
   color: #f87171;
   border-color: rgba(248, 113, 113, 0.3);
 }
+
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 80px 16px 40px;
+  }
+
+  .settings-header {
+    padding-left: 68px; /* Offset to clear hamburger menu toggle */
+    margin-bottom: 24px;
+  }
+
+  .settings-title {
+    font-size: 1.5rem;
+  }
+
+  .settings-card {
+    padding: 16px;
+  }
+
+  .settings-card-body.two-columns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .signout-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

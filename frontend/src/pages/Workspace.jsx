@@ -30,7 +30,7 @@ export default function Workspace() {
   });
 
   return (
-    <div className="workspace-content">
+    <div className={`workspace-content ${selectedNote ? 'has-selected-note' : ''}`}>
       {/* Notes List Panel */}
       <div className="notes-list-panel">
         <div className="list-header">
@@ -92,7 +92,7 @@ export default function Workspace() {
 }
 
 function NoteEditor() {
-  const { selectedNote, updateSelectedNote, runAiTool, saveStatus, deleteNote, toggleArchive } = useContext(NoteContext);
+  const { selectedNote, updateSelectedNote, runAiTool, saveStatus, deleteNote, toggleArchive, selectNote } = useContext(NoteContext);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [activeAiTab, setActiveAiTab] = useState(null); // 'summary' or 'actionItems'
@@ -165,6 +165,9 @@ function NoteEditor() {
     <>
       <div className="editor-toolbar">
          <div className="toolbar-left">
+           <button className="mobile-back-btn" onClick={() => selectNote(null)}>
+             ← Back
+           </button>
            <span className="save-indicator">● {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'ai-processing' ? 'AI thinking...' : 'Saved'}</span>
          </div>
          <div className="toolbar-right" style={{ display: 'flex', gap: '12px', alignItems: 'center', position: 'relative' }}>

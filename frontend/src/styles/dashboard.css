@@ -345,3 +345,50 @@
   .db-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .db-charts-row, .db-bottom-row { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 768px) {
+  .db-page {
+    padding: 80px 16px 40px;
+    gap: 16px;
+  }
+
+  .db-header {
+    padding-left: 68px; /* Offset to clear the floating hamburger menu */
+  }
+
+  .db-title {
+    font-size: 1.6rem;
+  }
+
+  .db-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .db-stat-card {
+    padding: 16px;
+  }
+
+  .db-stat-number {
+    font-size: 2.2rem;
+  }
+
+  .db-donut-body {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .db-donut-legend {
+    width: 100%;
+  }
+
+  .db-bar-chart {
+    margin-left: 16px;
+    gap: 8px;
+  }
+
+  .db-bar-y-axis {
+    display: none; /* Hide Y-axis on narrow viewports to save space */
+  }
+}

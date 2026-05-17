@@ -129,3 +129,22 @@
 .auth-footer a:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 20px 16px;
+  }
+
+  .auth-nav {
+    margin-bottom: 30px;
+  }
+
+  .auth-card {
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+
+  .auth-header h2 {
+    font-size: 1.6rem;
+  }
+}

@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
-export default function Sidebar() {
+export default function Sidebar({ closeSidebar }) {
   const { user, logout } = useContext(AuthContext);
 
   return (
@@ -16,24 +16,24 @@ export default function Sidebar() {
 
       <nav className="sidebar-nav">
         <div className="nav-group">
-          <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+          <NavLink to="/dashboard" onClick={closeSidebar} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
             <span className="icon">📊</span> Dashboard
           </NavLink>
         </div>
 
         <div className="nav-group">
           <label>NOTES</label>
-          <NavLink to="/workspace" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+          <NavLink to="/workspace" onClick={closeSidebar} className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
             <span className="icon">📄</span> All notes
           </NavLink>
-          <NavLink to="/archived" className="nav-item">
+          <NavLink to="/archived" onClick={closeSidebar} className="nav-item">
             <span className="icon">📦</span> Archived
           </NavLink>
         </div>
 
         <div className="nav-group">
           <label>ACCOUNT</label>
-          <NavLink to="/settings" className="nav-item">
+          <NavLink to="/settings" onClick={closeSidebar} className="nav-item">
             <span className="icon">⚙️</span> Settings
           </NavLink>
         </div>
