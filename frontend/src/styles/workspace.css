@@ -639,3 +639,37 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Logout Mini Button Styles */
+.logout-mini-btn {
+  background: transparent;
+  border: 1px solid var(--border-main);
+  color: var(--text-muted);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
+  margin-left: auto;
+}
+
+.logout-mini-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  transform: scale(1.05);
+}
+
+.logout-mini-btn .logout-icon-symbol {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.logout-mini-btn:hover .logout-icon-symbol {
+  transform: translateX(1px);
+}

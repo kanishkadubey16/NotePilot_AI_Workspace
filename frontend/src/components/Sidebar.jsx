@@ -51,8 +51,8 @@ export default function Sidebar() {
             <h5>{user?.name || 'User'}</h5>
             <p>{user?.email || 'user@example.com'}</p>
           </div>
-          <button onClick={logout} className="logout-mini-btn" title="Logout">
-            <span className="icon">↩</span> Logout
+          <button onClick={logout} className="logout-mini-btn" title="Logout" aria-label="Logout">
+            <span className="logout-icon-symbol">🚪</span>
           </button>
         </div>
       </div>
