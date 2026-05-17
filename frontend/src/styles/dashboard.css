@@ -1,0 +1,347 @@
+/* Dashboard Page Layout */
+.db-page {
+  flex: 1;
+  padding: 48px 56px;
+  background: var(--bg-main);
+  overflow-y: auto;
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.db-loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+/* Header */
+.db-header {
+  margin-bottom: 8px;
+}
+
+.db-breadcrumb {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.db-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+/* Stat Cards */
+.db-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.db-stat-card {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.db-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+}
+
+.db-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.db-stat-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.db-stat-icon {
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+.db-stat-number {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.db-stat-sub {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* Generic Card */
+.db-card {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  padding: 24px;
+  flex: 1;
+}
+
+.db-card-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.db-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 24px;
+}
+
+.db-empty {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* Charts Row */
+.db-charts-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+
+/* Bar Chart */
+.db-chart-card {
+  position: relative;
+}
+
+.db-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 160px;
+  margin-left: 32px;
+}
+
+.db-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.db-bar-track {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: var(--bg-input);
+  border-radius: 6px 6px 0 0;
+}
+
+.db-bar-fill {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(to top, #3b82f6, #8b5cf6);
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 4px;
+}
+
+.db-bar-label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.db-bar-y-axis {
+  position: absolute;
+  left: 24px;
+  top: 80px;
+  bottom: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.db-bar-y-axis span {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  line-height: 1;
+}
+
+/* Donut Chart */
+.db-donut-card {}
+
+.db-donut-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.donut-wrap {
+  flex-shrink: 0;
+}
+
+.donut-svg {
+  width: 120px;
+  height: 120px;
+  transform: rotate(-90deg);
+}
+
+.db-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.db-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.db-legend-label {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.db-legend-count {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+/* Bottom Row */
+.db-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Tags List */
+.db-tags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.db-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.db-tag-name {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.db-tag-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.db-tag-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.db-tag-count {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  width: 20px;
+  text-align: right;
+}
+
+/* Activity List */
+.db-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.db-activity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.db-activity-row:hover {
+  background: var(--bg-input);
+}
+
+.db-activity-icon {
+  font-size: 1rem;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.db-activity-title {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-activity-time {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .db-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .db-charts-row, .db-bottom-row { grid-template-columns: 1fr; }
+}
