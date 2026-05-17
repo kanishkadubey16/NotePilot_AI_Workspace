@@ -47,6 +47,7 @@ export default function Login() {
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 required
+                autoComplete="one-time-code"
               />
             </div>
             <div className="form-group">
@@ -57,6 +58,7 @@ export default function Login() {
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 required
+                autoComplete="new-password"
               />
             </div>
 

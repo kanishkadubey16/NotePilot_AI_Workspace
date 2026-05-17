@@ -47,6 +47,7 @@ export default function Signup() {
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
+                autoComplete="one-time-code"
               />
             </div>
             <div className="form-group">
@@ -57,6 +58,7 @@ export default function Signup() {
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 required
+                autoComplete="one-time-code"
               />
             </div>
             <div className="form-group">
@@ -67,6 +69,7 @@ export default function Signup() {
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 required
+                autoComplete="new-password"
               />
             </div>
 
