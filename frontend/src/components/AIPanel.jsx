@@ -4,8 +4,8 @@ import aiService from '../services/aiService';
 import { toast } from 'react-toastify';
 
 export default function AIPanel() {
-  const { selectedNote, updateSelectedNote } = useContext(NoteContext);
-  const [loading, setLoading] = useState(null); // 'summary', 'actionItems', 'title', 'tags', 'improve'
+  const { selectedNote, updateSelectedNote, runAiTool } = useContext(NoteContext);
+  const [loading, setLoading] = useState(null);
   const [results, setResults] = useState({
     summary: '',
     actionItems: [],
@@ -23,21 +23,30 @@ export default function AIPanel() {
     setLoading(type);
     try {
       const data = await actionFn(selectedNote._id);
+      console.log(`[AIPanel] ${type} response:`, data);
       if (data.success) {
-        setResults(prev => ({ ...prev, [resultKey]: data[resultKey] || data.summary || data.title || data.suggestions || data.tags }));
+        // Store in local results for immediate display
+        const resultValue = type === 'summary' ? data.summary :
+                           type === 'actionItems' ? data.actionItems :
+                           type === 'tags' ? data.tags :
+                           type === 'title' ? data.title :
+                           type === 'improve' ? data.suggestions : null;
         
-        // Auto-update context for persistent fields
+        setResults(prev => ({ ...prev, [resultKey]: resultValue }));
+        
+        // Persist to selectedNote context
         if (type === 'summary') updateSelectedNote({ aiSummary: data.summary });
         if (type === 'actionItems') updateSelectedNote({ aiActionItems: data.actionItems });
         if (type === 'title') {
-            updateSelectedNote({ title: data.title });
-            toast.success('Title updated by AI');
+          updateSelectedNote({ title: data.title });
+          toast.success('Title updated by AI');
         }
         
-        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} generated!`);
+        toast.success(`${type === 'actionItems' ? 'Action items' : type.charAt(0).toUpperCase() + type.slice(1)} generated!`);
       }
     } catch (error) {
-      toast.error(`Failed to generate ${type}`);
+      console.error(`[AIPanel] ${type} error:`, error);
+      toast.error(error.response?.data?.message || `Failed to generate ${type}`);
     } finally {
       setLoading(null);
     }
