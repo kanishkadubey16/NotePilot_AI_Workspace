@@ -55,9 +55,8 @@ const noteSchema = mongoose.Schema(
 );
 
 // Pre-save hook to automatically update lastEdited
-noteSchema.pre('save', function (next) {
+noteSchema.pre('save', function () {
   this.lastEdited = Date.now();
-  next();
 });
 
 const Note = mongoose.model('Note', noteSchema);

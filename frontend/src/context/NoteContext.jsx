@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useRef, useMemo } from 'react';
 import noteService from '../services/noteService';
+import aiService from '../services/aiService';
 import { toast } from 'react-toastify';
 
 export const NoteContext = createContext();
@@ -47,6 +48,7 @@ export const NoteProvider = ({ children }) => {
   }, [notes, searchQuery, activeCategory, view]);
 
   const createNote = async () => {
+    console.log('Creating note...');
     const tempId = Date.now().toString();
     const tempNote = {
       _id: tempId,
@@ -59,15 +61,18 @@ export const NoteProvider = ({ children }) => {
       isTemp: true
     };
 
-    setNotes([tempNote, ...notes]);
+    setNotes(prev => [tempNote, ...prev]);
     setSelectedNote(tempNote);
-    setView('all'); // Switch to 'all' view when creating
+    setView('all'); 
+    setSearchQuery('');
+    setActiveCategory('All');
 
     try {
       const data = await noteService.createNote({ title: '', content: '' });
       if (data.success) {
         setNotes(prev => prev.map(n => n._id === tempId ? data.note : n));
         setSelectedNote(data.note);
+        toast.success('New note created');
       }
     } catch (error) {
       setNotes(prev => prev.filter(n => n._id !== tempId));
@@ -76,27 +81,58 @@ export const NoteProvider = ({ children }) => {
     }
   };
 
+  const pendingUpdatesRef = useRef({});
+
   const updateSelectedNote = (updates) => {
     if (!selectedNote || selectedNote.isTemp) return;
     
+    const noteIdToSave = selectedNote._id;
     const updatedNote = { ...selectedNote, ...updates };
     setSelectedNote(updatedNote);
-    setNotes(prev => prev.map(n => n._id === selectedNote._id ? updatedNote : n));
+    setNotes(prev => prev.map(n => n._id === noteIdToSave ? updatedNote : n));
+    
+    // Accumulate all field updates for this specific note
+    pendingUpdatesRef.current[noteIdToSave] = {
+      ...(pendingUpdatesRef.current[noteIdToSave] || {}),
+      ...updates
+    };
     
     setSaveStatus('saving');
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
     saveTimeoutRef.current = setTimeout(async () => {
+      const updatesToSend = pendingUpdatesRef.current[noteIdToSave];
+      if (!updatesToSend) return;
+      delete pendingUpdatesRef.current[noteIdToSave];
+
       try {
-        const response = await noteService.updateNote(selectedNote._id, updates);
+        const response = await noteService.updateNote(noteIdToSave, updatesToSend);
         if (response.success) {
           setSaveStatus('saved');
-          setNotes(prev => prev.map(n => n._id === selectedNote._id ? response.note : n));
+          // Merge server response with current local state to preserve AI fields
+          setNotes(prev => prev.map(n => n._id === noteIdToSave ? { ...n, ...response.note } : n));
+          setSelectedNote(prev => prev?._id === noteIdToSave ? { ...prev, ...response.note } : prev);
+
+          // Auto-suggest tags if the setting is on and content was updated
+          const autoSuggest = localStorage.getItem('autoSuggestTags') === 'true';
+          if (autoSuggest && updatesToSend.content) {
+            try {
+              const aiData = await aiService.suggestTags(noteIdToSave);
+              if (aiData.success && aiData.tags?.length > 0) {
+                const tagUpdate = { tags: aiData.tags };
+                await noteService.updateNote(noteIdToSave, tagUpdate);
+                setNotes(prev => prev.map(n => n._id === noteIdToSave ? { ...n, ...tagUpdate } : n));
+                setSelectedNote(prev => prev?._id === noteIdToSave ? { ...prev, ...tagUpdate } : prev);
+              }
+            } catch (_) {
+              // silently fail tag suggestion - don't bother the user
+            }
+          }
         }
       } catch (error) {
         setSaveStatus('error');
       }
-    }, 1000);
+    }, 1500);
   };
 
   const deleteNote = async (id) => {
@@ -127,6 +163,71 @@ export const NoteProvider = ({ children }) => {
     }
   };
 
+  const applyAiResult = (updates) => {
+    console.log('[AI] applyAiResult called with:', updates);
+    setSelectedNote(prev => {
+      const next = prev ? { ...prev, ...updates } : prev;
+      console.log('[AI] selectedNote after update:', next);
+      return next;
+    });
+    setNotes(prev => prev.map(n => n._id === selectedNote._id ? { ...n, ...updates } : n));
+  };
+
+  const runAiTool = async (toolName) => {
+    if (!selectedNote || selectedNote.isTemp) return;
+    
+    setSaveStatus('ai-processing');
+    try {
+      let data;
+      switch (toolName) {
+        case 'summary':
+          data = await aiService.generateSummary(selectedNote._id);
+          console.log('[AI] summary response:', data);
+          if (data.success) {
+            applyAiResult({ aiSummary: data.summary });
+            toast.success('Summary generated!');
+          }
+          break;
+        case 'action-items':
+          data = await aiService.extractActionItems(selectedNote._id);
+          console.log('[AI] action-items response:', data);
+          if (data.success) {
+            applyAiResult({ aiActionItems: data.actionItems });
+            toast.success('Action items extracted!');
+          }
+          break;
+        case 'title':
+          data = await aiService.suggestTitle(selectedNote._id);
+          if (data.success) {
+            applyAiResult({ title: data.title });
+            toast.success('Title updated!');
+          }
+          break;
+        case 'tags':
+          data = await aiService.suggestTags(selectedNote._id);
+          if (data.success) {
+            applyAiResult({ tags: data.tags });
+            toast.success('Tags suggested!');
+          }
+          break;
+        case 'improve':
+          data = await aiService.improveWriting(selectedNote._id);
+          if (data.success) {
+            applyAiResult({ content: data.suggestions || data.content }); // backend aiService returns suggestions
+            toast.success('Writing improved!');
+          }
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || 'AI processing failed. Please check your API key.';
+      toast.error(errorMsg);
+    } finally {
+      setSaveStatus('saved');
+    }
+  };
+
   useEffect(() => {
     fetchNotes();
   }, []);
@@ -148,7 +249,8 @@ export const NoteProvider = ({ children }) => {
       selectNote: setSelectedNote,
       updateSelectedNote,
       deleteNote,
-      toggleArchive
+      toggleArchive,
+      runAiTool
     }}>
       {children}
     </NoteContext.Provider>

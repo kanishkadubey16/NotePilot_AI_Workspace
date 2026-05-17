@@ -6,19 +6,20 @@ const Note = require('../models/Note');
 const createNote = async (req, res, next) => {
   try {
     const { title, content, tags, category } = req.body;
-
-    const note = await Note.create({
+    const note = new Note({
       userId: req.user._id,
       title: title || '',
       content: content || '',
-      tags,
-      category,
+      tags: tags || [],
+      category: category || 'General',
     });
+
+    const savedNote = await note.save();
 
     res.status(201).json({
       success: true,
       message: 'Note created successfully',
-      note,
+      note: savedNote,
     });
   } catch (error) {
     next(error);
@@ -31,8 +32,7 @@ const createNote = async (req, res, next) => {
 const getNotes = async (req, res, next) => {
   try {
     const notes = await Note.find({
-      userId: req.user._id,
-      isArchived: false,
+      userId: req.user._id
     }).sort({ lastEdited: -1 });
 
     res.status(200).json({
@@ -251,6 +251,72 @@ const getArchivedNotes = async (req, res, next) => {
   }
 };
 
+// @desc    Toggle or set public share status
+// @route   PATCH /notes/share/:id
+// @access  Private
+const toggleShareNote = async (req, res, next) => {
+  try {
+    const { nanoid } = await import('nanoid');
+    const note = await Note.findOne({ _id: req.params.id, userId: req.user._id });
+
+    if (!note) {
+      res.status(404);
+      return next(new Error('Note not found or user not authorized'));
+    }
+
+    if (req.body && typeof req.body.isPublic === 'boolean') {
+      note.isPublic = req.body.isPublic;
+    } else {
+      note.isPublic = !note.isPublic;
+    }
+
+    if (note.isPublic && !note.shareId) {
+      note.shareId = nanoid(10);
+    }
+    
+    note.lastEdited = Date.now();
+    const updatedNote = await note.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Note ${updatedNote.isPublic ? 'shared' : 'made private'} successfully`,
+      note: updatedNote,
+      shareUrl: updatedNote.isPublic ? `/shared/${updatedNote.shareId}` : null
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get public note by shareId
+// @route   GET /notes/shared/:shareId
+// @access  Public
+const getPublicNote = async (req, res, next) => {
+  try {
+    const note = await Note.findOne({ shareId: req.params.shareId, isPublic: true });
+
+    if (!note) {
+      res.status(404);
+      return next(new Error('Shared note not found or no longer public'));
+    }
+
+    res.status(200).json({
+      success: true,
+      note: {
+        title: note.title,
+        content: note.content,
+        tags: note.tags,
+        category: note.category,
+        aiSummary: note.aiSummary,
+        aiActionItems: note.aiActionItems,
+        updatedAt: note.updatedAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createNote,
   getNotes,
@@ -262,4 +328,6 @@ module.exports = {
   getNotesByTag,
   getNotesByCategory,
   getArchivedNotes,
+  toggleShareNote,
+  getPublicNote,
 };

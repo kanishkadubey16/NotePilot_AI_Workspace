@@ -10,8 +10,13 @@ const noteService = {
     return data;
   },
   createNote: async (noteData) => {
-    const { data } = await api.post('/notes', noteData);
-    return data;
+    try {
+      const { data } = await api.post('/notes', noteData);
+      return data;
+    } catch (error) {
+      console.error('noteService.createNote error:', error.response?.status, error.response?.data);
+      throw error;
+    }
   },
   updateNote: async (id, noteData) => {
     const { data } = await api.patch(`/notes/${id}`, noteData);
@@ -27,6 +32,10 @@ const noteService = {
   },
   searchNotes: async (query) => {
     const { data } = await api.get(`/notes/search?q=${query}`);
+    return data;
+  },
+  shareNote: async (id, isPublic) => {
+    const { data } = await api.patch(`/notes/share/${id}`, { isPublic });
     return data;
   }
 };
