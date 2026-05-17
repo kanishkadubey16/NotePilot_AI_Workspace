@@ -114,7 +114,9 @@ function NoteEditor() {
   if (!selectedNote) {
     return (
       <div className="editor-placeholder">
+         <div className="placeholder-icon" style={{ fontSize: '4.5rem', marginBottom: '24px' }}>📝</div>
          <h3>Select a note to start writing</h3>
+         <p>Choose an existing note from the sidebar list or create a fresh one to begin typing.</p>
       </div>
     );
   }
@@ -133,7 +135,11 @@ function NoteEditor() {
   };
 
   const handleRunAiTool = async (tool) => {
-    await runAiTool(tool);
+    const updates = await runAiTool(tool);
+    if (updates) {
+      if (updates.content !== undefined) setContent(updates.content);
+      if (updates.title !== undefined) setTitle(updates.title);
+    }
     if (tool === 'summary') setActiveAiTab('summary');
     if (tool === 'action-items') setActiveAiTab('actionItems');
   };

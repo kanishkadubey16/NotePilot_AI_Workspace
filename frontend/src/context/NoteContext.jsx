@@ -174,7 +174,7 @@ export const NoteProvider = ({ children }) => {
   };
 
   const runAiTool = async (toolName) => {
-    if (!selectedNote || selectedNote.isTemp) return;
+    if (!selectedNote || selectedNote.isTemp) return null;
     
     setSaveStatus('ai-processing');
     try {
@@ -186,6 +186,7 @@ export const NoteProvider = ({ children }) => {
           if (data.success) {
             applyAiResult({ aiSummary: data.summary });
             toast.success('Summary generated!');
+            return { aiSummary: data.summary };
           }
           break;
         case 'action-items':
@@ -194,6 +195,7 @@ export const NoteProvider = ({ children }) => {
           if (data.success) {
             applyAiResult({ aiActionItems: data.actionItems });
             toast.success('Action items extracted!');
+            return { aiActionItems: data.actionItems };
           }
           break;
         case 'title':
@@ -201,6 +203,7 @@ export const NoteProvider = ({ children }) => {
           if (data.success) {
             applyAiResult({ title: data.title });
             toast.success('Title updated!');
+            return { title: data.title };
           }
           break;
         case 'tags':
@@ -208,6 +211,7 @@ export const NoteProvider = ({ children }) => {
           if (data.success) {
             applyAiResult({ tags: data.tags });
             toast.success('Tags suggested!');
+            return { tags: data.tags };
           }
           break;
         case 'improve':
@@ -215,14 +219,17 @@ export const NoteProvider = ({ children }) => {
           if (data.success) {
             applyAiResult({ content: data.suggestions || data.content }); // backend aiService returns suggestions
             toast.success('Writing improved!');
+            return { content: data.suggestions || data.content };
           }
           break;
         default:
           break;
       }
+      return null;
     } catch (error) {
       const errorMsg = error.response?.data?.message || 'AI processing failed. Please check your API key.';
       toast.error(errorMsg);
+      return null;
     } finally {
       setSaveStatus('saved');
     }

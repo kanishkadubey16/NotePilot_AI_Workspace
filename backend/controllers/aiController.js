@@ -137,6 +137,9 @@ const improveNoteWriting = async (req, res, next) => {
     if (!note) return;
 
     const improvedContent = await improveWriting(note.content);
+    note.content = improvedContent;
+    note.lastEdited = Date.now();
+    await note.save();
 
     await trackAiUsage(req.user._id, 'improve');
     res.status(200).json({ success: true, suggestions: improvedContent });
