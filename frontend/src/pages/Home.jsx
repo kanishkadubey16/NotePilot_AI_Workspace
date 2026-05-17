@@ -1,7 +1,11 @@
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import '../styles/home.css';
 
 export default function Home() {
+  const { user } = useContext(AuthContext);
+
   return (
     <div className="landing-page">
       <nav className="landing-nav">
@@ -9,11 +13,20 @@ export default function Home() {
            <span className="logo-icon">🚀</span> NotePilot
         </div>
         <div className="nav-links">
-          <Link to="/" className="nav-item-link">Features</Link>
-          <Link to="/workspace" className="nav-item-link">Workspace</Link>
-          <Link to="/dashboard" className="nav-item-link">Dashboard</Link>
-          <Link to="/login" className="nav-item-link">Sign in</Link>
-          <Link to="/signup" className="nav-btn primary">Get started</Link>
+          <a href="#features" className="nav-item-link">Features</a>
+          {user ? (
+            <>
+              <Link to="/workspace" className="nav-item-link">Workspace</Link>
+              <Link to="/dashboard" className="nav-item-link">Dashboard</Link>
+              <Link to="/settings" className="nav-item-link">Settings</Link>
+              <Link to="/workspace" className="nav-btn primary">Go to App →</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="nav-item-link">Sign in</Link>
+              <Link to="/signup" className="nav-btn primary">Get started</Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -26,8 +39,17 @@ export default function Home() {
         <p>Capture, organize, and act on every thought. NotePilot turns scattered notes into structured knowledge with AI summaries, action items, and one-click publishing.</p>
         
         <div className="hero-cta">
-          <Link to="/signup" className="cta-btn primary">Get started free →</Link>
-          <Link to="/login" className="cta-btn secondary">Sign in</Link>
+          {user ? (
+            <>
+              <Link to="/workspace" className="cta-btn primary">Go to Workspace →</Link>
+              <Link to="/dashboard" className="cta-btn secondary">View Dashboard</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/signup" className="cta-btn primary">Get started free →</Link>
+              <Link to="/login" className="cta-btn secondary">Sign in</Link>
+            </>
+          )}
         </div>
 
         <div className="hero-stats">
@@ -143,7 +165,7 @@ export default function Home() {
       </section>
 
       {/* Features Grid Section */}
-      <section className="features-section">
+      <section className="features-section" id="features">
         <span className="section-label">AI FEATURES</span>
         <h2>Built for <span className="gradient-text">deep work.</span></h2>
         
