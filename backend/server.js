@@ -12,7 +12,11 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Route setup
 app.get('/', (req, res) => {
@@ -23,6 +27,7 @@ app.get('/', (req, res) => {
 app.use('/auth', require('./routes/authRoutes'));
 app.use('/notes', require('./routes/noteRoutes'));
 app.use('/ai', require('./routes/aiRoutes'));
+app.use('/dashboard', require('./routes/dashboardRoutes'));
 
 // Error Handling Middleware
 app.use(notFound);
