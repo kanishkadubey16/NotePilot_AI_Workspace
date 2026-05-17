@@ -1,84 +1,83 @@
-import { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import '../styles/auth.css';
 
 export default function Signup() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { signup } = useContext(AuthContext);
+  const { signup, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/workspace');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Form Validation
-    if (!formData.name || !formData.email || !formData.password) {
-      return toast.warning('Please fill in all fields');
-    }
-    if (formData.password.length < 6) {
-      return toast.warning('Password must be at least 6 characters long');
-    }
-
-    setIsSubmitting(true);
     const success = await signup(formData.name, formData.email, formData.password);
-    setIsSubmitting(false);
-
     if (success) {
-      navigate('/dashboard');
+      navigate('/workspace');
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h1>Create Account</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
-            <input 
-              type="text" 
-              id="name" 
-              name="name" 
-              value={formData.name} 
-              onChange={handleChange} 
-              placeholder="John Doe" 
-            />
+    <div className="auth-page">
+      <div className="auth-nav">
+        <div className="logo">🚀 NotePilot</div>
+      </div>
+      
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <span className="label">CREATE ACCOUNT</span>
+            <h2>Start your workspace</h2>
+            <p>Free. Takes 20 seconds.</p>
           </div>
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              value={formData.email} 
-              onChange={handleChange} 
-              placeholder="john@example.com" 
-            />
+
+          <form className="auth-form" onSubmit={handleSubmit} autoComplete="off">
+            <div className="form-group">
+              <label>NAME</label>
+              <input 
+                type="text" 
+                placeholder="Ada Lovelace"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>EMAIL</label>
+              <input 
+                type="email" 
+                placeholder="you@company.com"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>PASSWORD</label>
+              <input 
+                type="password" 
+                placeholder="At least 6 characters"
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                required
+              />
+            </div>
+
+            <button type="submit" className="auth-btn">
+              Create account →
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            Already have an account? <Link to="/login">Sign in</Link>
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              value={formData.password} 
-              onChange={handleChange} 
-              placeholder="••••••••" 
-            />
-          </div>
-          <button type="submit" className="auth-button" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing up...' : 'Sign Up'}
-          </button>
-        </form>
-        <div className="auth-redirect">
-          Already have an account? <Link to="/login">Login here</Link>
         </div>
       </div>
     </div>

@@ -23,6 +23,13 @@ const userSchema = mongoose.Schema(
     lastAiUsage: {
       type: Date,
     },
+    aiUsageBreakdown: {
+      summary: { type: Number, default: 0 },
+      'action-items': { type: Number, default: 0 },
+      title: { type: Number, default: 0 },
+      tags: { type: Number, default: 0 },
+      improve: { type: Number, default: 0 },
+    },
   },
   {
     // This automatically creates createdAt and updatedAt fields

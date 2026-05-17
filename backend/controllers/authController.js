@@ -99,8 +99,66 @@ const getMe = async (req, res, next) => {
   }
 };
 
+// @desc    Update user profile (name, email, password)
+// @route   PUT /auth/profile
+// @access  Private
+const updateProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      res.status(404);
+      return next(new Error('User not found'));
+    }
+
+    const { name, email, password } = req.body;
+
+    if (email && email !== user.email) {
+      const emailInUse = await User.findOne({ email });
+      if (emailInUse) {
+        res.status(400);
+        return next(new Error('Email already in use'));
+      }
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    if (password) user.password = password;
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: { _id: updatedUser._id, name: updatedUser.name, email: updatedUser.email },
+      token: generateToken(updatedUser._id),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete user account and all notes
+// @route   DELETE /auth/profile
+// @access  Private
+const deleteAccount = async (req, res, next) => {
+  try {
+    const Note = require('../models/Note');
+    await Note.deleteMany({ userId: req.user._id });
+    await User.findByIdAndDelete(req.user._id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Account and all notes permanently deleted',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   signup,
   login,
   getMe,
+  updateProfile,
+  deleteAccount,
 };

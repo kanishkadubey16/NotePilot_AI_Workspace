@@ -74,8 +74,40 @@ export const AuthProvider = ({ children }) => {
     toast.info('Logged out safely');
   };
 
+  const updateProfile = async (name, email, password) => {
+    try {
+      const { data } = await api.put('/auth/profile', { name, email, password });
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.token) {
+        setToken(data.token);
+        localStorage.setItem('token', data.token);
+      }
+      toast.success('Profile updated successfully!');
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Update failed');
+      return false;
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      await api.delete('/auth/profile');
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      toast.success('Account deleted permanently');
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Delete failed');
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, signup, logout, checkAuth }}>
+    <AuthContext.Provider value={{ user, token, loading, login, signup, logout, checkAuth, updateProfile, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );
